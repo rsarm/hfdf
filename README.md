@@ -8,6 +8,8 @@
 The thing is that one needs the integral (\| nabla-rinv \|) for the calculations.
 For that it can be used the clisp auto-intor.cl utility that comes with pyscf.
 This is done as follows:
+(See section 'Generating integrals' in https://github.com/sunqm/libcint)
+
 
 1. Download the code
 2. cd pyscf/lib/; mkdir build; cd build; cmake ..;
