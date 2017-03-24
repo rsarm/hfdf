@@ -1,11 +1,12 @@
 #!/home/rsarmiento/anaconda2/bin/python
 
 
-import numpy as np
-from pyscf import gto, scf, grad
-import read_xyz as xyz
 import sys,os
+import numpy as np
 
+from pyscf import gto, scf, grad
+
+import read_xyz as xyz
 import forces4df as fdf
 import normalization
 import eri
@@ -23,13 +24,13 @@ molstr=xyz.get_block(sys.argv[1])[2:]
 # Main Molecule object (M1).
 mol = gto.Mole()
 mol.atom =molstr
-mol.basis = '631gs'
+mol.basis = '631g'
 mol.build()
 
 # Creating auxiliary Molecule object for the fitting (M2).
 auxmol = gto.Mole()
 auxmol.atom = molstr
-auxmol.basis = 'sto-3g'
+auxmol.basis = 'weigend'
 auxmol.build()
 
 
@@ -60,8 +61,8 @@ Coul=grad.grad_nuc(mol)[atom_id][axis]
 def get_vhf(mol, dm, *args, **kwargs):
     """This function needs to be defined here as it depends on eri2c and eri3c,
     which are computed above. This is a bit a la 'por la pata del blumer' but
-    currently I don't have another solution because the density lives only
-    inside the function.
+    currently I don't have a better solution because the density lives only
+    in the namespace inside the function.
     """
     naux = eri2c.shape[0]
     nao  = mol.nao_nr()
@@ -73,9 +74,10 @@ def get_vhf(mol, dm, *args, **kwargs):
     pik  = np.linalg.solve(eri2c, kpj.reshape(-1,naux).T)
     kmat = np.einsum('pik,kjp->ij', pik.reshape(naux,nao,nao), eri3c)
 
+    # Printing the .den file
     print >>den_file, len(mol.atom)
     print >>den_file, 'Molecule', sys.argv[1]
-
+    #
     iini = 0
     for i in mol.atom:
         bas_len=sum(normalization.df_basis_dict[auxmol.basis][i.split()[0]])
@@ -84,16 +86,19 @@ def get_vhf(mol, dm, *args, **kwargs):
         #print >>den_file, " ".join("%16.12f" % x for x in rho[iini:iini+bas_len[i.split()[0]]])
         iini+=bas_len
 
-    rho_norm=rho*normalization.normalize_df(auxmol)[0]
+    # I don't remeber now how the normalization in PyScf is done, but 
+    # 
+    rho_normalized=rho * np.sqrt(4*np.pi)#normalization.normalize_df(auxmol)[0]
     #print normalization.normalize_df(auxmol)
-    #print 'rho_norm.shape', rho_norm.shape
-    #print 'rho.shape', rho.shape
 
-    print '\nF_EN = %12.6f'  % (hf.dot(rho_norm))
+    print '\nF_EN = %12.6f'  % (hf.dot(rho_normalized))
     print   'F_NN = %12.6f'  % (Coul)
-    print   'Ftot = %12.6f'  % (hf.dot(rho_norm)+Coul)
-    print   'Norm = %12.12f' % (norm_aux.dot(rho_norm))
-    #print '\nRHO   =' , rho_norm
+    print   'Ftot = %12.6f'  % (hf.dot(rho_normalized)+Coul)
+    print   'Norm = %12.6f' % (norm_aux.dot(rho_normalized))
+
+    #print '\nRHO  =', rho_normalized
+
+    # Save the density in numpy arrat .npy file
     #rhosave=open('rho.np','w'); np.save(rhosave,rho); rhosave.close()
 
     return jmat - kmat * .5
@@ -104,9 +109,19 @@ mf = scf.RHF(mol)
 mf.verbose = 0
 
 e_ref=mf.kernel() # Solving the scf RHF.
-g = grad.rhf.Gradients(mf)
-g.grad()
 
+# Compute the reference Hartree-Fock forces
+g = grad.rhf.Gradients(mf)
+hartree_fock_force=g.grad()
+
+print '\nReference Forces:--------------------------------------'
+print '           x                y                z'
+for i in range(mol.natm):
+  print i, mol.atom_symbol(0),
+  print '%16.9f  %16.9f %16.9f' % (hartree_fock_force[i,0],
+                                   hartree_fock_force[i,1],
+                                   hartree_fock_force[i,2])
+print '-------------------------------------------------------'
 P=mf.from_chk()
 
 
@@ -115,14 +130,14 @@ mf.get_veff = get_vhf  # This substitutes the function 'get_veff' in mf by the
 # This is done here after the SCF was solved.
 
 e_fit=mf.energy_tot()  # Run this only to get the density basis coefficients.
-# Here the function 'get_vhf' is called give access to the coefficients
+# Here the function 'get_vhf' is called and give access to the coefficients
 # prints the d_l coefficients.
 
 den_file.close()
 
 
 
-print '\nHellmann-Feynman Forces:'
+print '\nHellmann-Feynman Forces:-------------------------------'
 print '           x                y                z'
 for i in range(mol.natm):
   F_en_0=fdf.HellmannFeynman(mol,i)/2.
@@ -132,13 +147,13 @@ for i in range(mol.natm):
 
   print i, mol.atom_symbol(0),
   print '%16.9f  %16.9f %16.9f' % (Ft[0],Ft[1],Ft[2])
+print '-------------------------------------------------------'
 
-
-print '\nMol_file   E_fit        E_ref       dE'
-print sys.argv[1],' ',
-print ' %0.4f ' % (e_fit*27.2114),
-print ' %0.4f ' % (e_ref*27.2114),
-print ' %0.4f [eV]' % ((e_fit-e_ref)*27.2114)
+print '\n        Mol_file      E_fit[eV]    E_ref[eV]     dE[eV]'
+print ' %15s '   % (sys.argv[1]),' ',
+print ' %10.4f ' % (e_fit*27.2114),
+print ' %10.4f ' % (e_ref*27.2114),
+print ' % 8.4f ' % ((e_fit-e_ref)*27.2114)
 
 
 

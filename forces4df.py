@@ -5,13 +5,13 @@ from pyscf import gto
 
 
 def OneGaussian_from_Overlap(mol):
-  '''
+  """
   Outputs the integral of only one Gaussian
   using as second Gaussian in <i|j> an 1s
   basis funtion of an He atom with
   alpha=1e-15 and coeff=1.00000. The result
   is divided by the norm of the He function.
-  '''
+  """
   # Creating auxiliar Molecule
   intmol=gto.Mole()
   intmol.atom = '''He  0. 0. 0.'''
@@ -28,21 +28,29 @@ def OneGaussian_from_Overlap(mol):
   return np.hstack(HF_partial[:,:1])[1:]/gto.gto_norm(0,1e-15)
 
 
+
+
+
 def HellmannFeynman(mol,ia):
-  ''' for given atom, <|\nabla r^{-1}|> '''
+  """Computes <|\nabla r^{-1}|> for a given atom index ia
+  in the molecule mol.
+  """
   mol.set_rinv_origin_(mol.atom_coord(ia))
   return -mol.atom_charge(ia) * mol.intor('cint1e_drinv_sph', comp=3)
 
 
+
+
+
 def HellmannFeynman_df(mol,ia,axis):
-  '''
+  """
   Outputs the integral 
         Z_I*<i|(r-R_I)/|r-R_I|^3|j>
   of only one Gaussian using as second Gaussian
   an 1s basis funtion of an He atom with
   alpha=1e-15 and coeff=1.00000. The result
   is divided by the norm of the He function.
-  '''
+  """
 
   # Creating auxiliar Molecule
   intmol=gto.Mole()
@@ -63,18 +71,6 @@ def HellmannFeynman_df(mol,ia,axis):
 
   return -mol.atom_charge(ia)*\
           np.hstack(HF_partial[axis,:,:1])[1:]/gto.gto_norm(0,1e-15)
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

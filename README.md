@@ -1,7 +1,9 @@
 
 ## Calculate Helmann-Feynman forces from the basis set expansion of the density with PySCF.
 
-
+This does a density fitting with PySCF using the functions given in the
+tutorial page http://sunqm.github.io/pyscf/tutorial.html#access-ao-integrals and
+with the fitted density computes forces using the Hellmann-Feynmann theorem.
 
 ### Compiling PySCF and adding the 'cint1e_drinv_sph' integral.
 
