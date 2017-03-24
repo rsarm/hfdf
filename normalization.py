@@ -1,10 +1,9 @@
 
-
 import numpy as np
-
 from pyscf import gto
 
 
+# Basis sets that to fit the density.
 df_basis_dict={
   'sto-3g' :{'H':[ 1,  0] ,
              'C':[ 2,  3],
@@ -24,6 +23,7 @@ df_basis_dict={
             }
   }
 
+
 norm_by_l_dict={
   'S': np.sqrt(4*np.pi),
   'P': np.sqrt(4*np.pi/3),
@@ -33,34 +33,37 @@ norm_by_l_dict={
   'H': np.sqrt(4*np.pi/1155)
   }
 
-norm_by_l=[np.sqrt(4*np.pi)    , np.sqrt(4*np.pi/3)  ,\
-           np.sqrt(4*np.pi/15) , np.sqrt(4*np.pi/105),\
-           np.sqrt(4*np.pi/315), np.sqrt(4*np.pi/1155)]
+norm_by_l_list=[
+  np.sqrt(4*np.pi),      # S
+  np.sqrt(4*np.pi/3),    # P
+  np.sqrt(4*np.pi/15),   # D
+  np.sqrt(4*np.pi/105),  # F
+  np.sqrt(4*np.pi/315),  # G
+  np.sqrt(4*np.pi/1155)  # H
+  ]
 
 
 def total_num_basis(mol):
-  norm_vector_length=0
-  for i in range(mol.natm):
-    norm_vector_length+=sum(df_basis_dict[mol.basis][mol.atom_symbol(i)])
+    """xxx."""
 
-  return norm_vector_length
+    return sum([sum(df_basis_dict[mol.basis][mol.atom_symbol(i)]) for i in range(mol.natm)])
+
 
 
 def normalize_df(mol):
-  """
-  xxx.
-  """
-  norm_vector=np.empty(total_num_basis(mol))
+    """xxx."""
 
-  c=0
-  for i in range(mol.natm):
-    for j, num_ao_l in enumerate(df_basis_dict[mol.basis][mol.atom_symbol(i)]):
-      for k in range(num_ao_l):
-        #print i,j,k,'  ', norm_by_l[j]
-        norm_vector[c]=norm_by_l[j]
-        c+=1
+    norm_vector=np.empty(total_num_basis(mol))
 
-  return np.array(norm_vector)
+    c=0
+    for i in range(mol.natm):
+      for j, num_ao_l in enumerate(df_basis_dict[mol.basis][mol.atom_symbol(i)]):
+        for k in range(num_ao_l):
+          #print i,j,k,'  ', norm_by_l_list[j]
+          norm_vector[c]=norm_by_l_list[j]
+          c+=1
+  
+    return norm_vector
 
 
 
