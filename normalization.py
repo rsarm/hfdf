@@ -5,7 +5,7 @@ from pyscf import gto
 
 # Basis sets that to fit the density.
 df_basis_dict={
-  'sto-3g' :{'H':[ 1,  0] ,
+  'sto-3g' :{'H':[ 1,  0],
              'C':[ 2,  3],
              'N':[ 2,  3],
              'O':[ 2,  3]
@@ -62,7 +62,7 @@ def normalize_df(mol):
           #print i,j,k,'  ', norm_by_l_list[j]
           norm_vector[c]=norm_by_l_list[j]
           c+=1
-  
+
     return norm_vector
 
 
