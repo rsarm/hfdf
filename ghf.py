@@ -4,7 +4,8 @@ import numpy as np
 
 from pyscf import gto, scf, grad
 
-import forces4df as fdf
+import df_integrals
+import mo_integrals
 import normalization
 import eri
 
@@ -62,7 +63,7 @@ def get_hf(molstr,fitness = 'repulsion',basis='sto3g',auxbasis='weigend',ref=Tru
 
 
     hf_forces_df=np.ones([mol.natm,3])
-    number_of_electrons=[100000.]  # A list to make it a mutable object #nasty
+    number_of_electrons=[100000.]  # A list to make it a mutable object? #nasty
 
     #Definig a inner function
     def get_vhf(mol, dm, *args, **kwargs):
@@ -90,8 +91,8 @@ def get_hf(molstr,fitness = 'repulsion',basis='sto3g',auxbasis='weigend',ref=Tru
         # Compute the Hellmann Feynman Forces from the DF expansion.
         for atom_id in range(mol.natm):
             for axis in [0,1,2]:
-                norm_aux=fdf.OneGaussian_from_Overlap(auxmol)  #*np.sqrt(4*np.pi)
-                hf=fdf.HellmannFeynman_df(auxmol,atom_id,axis) #*np.sqrt(4*np.pi)
+                norm_aux=df_integrals.integral_one_gaussian_from_overlap(auxmol)
+                hf=df_integrals.hellmann_feynman_df(auxmol,atom_id,axis)
                 coul=grad.grad_nuc(mol)[atom_id][axis]
 
                 hf_forces_df[atom_id][axis]=hf.dot(rho_normalized)+coul
@@ -116,7 +117,7 @@ def get_hf(molstr,fitness = 'repulsion',basis='sto3g',auxbasis='weigend',ref=Tru
 
       P=mf.from_chk()
       for i in range(mol.natm):
-        F_en_0=fdf.HellmannFeynman(mol,i)/2.
+        F_en_0=mo_integrals.hellmann_feynman_mo(mol,i)/2.
         F_nn=grad.grad_nuc(mol)
         F_en=np.einsum('ij,kji->k',P,F_en_0)*2. # 2*\Sum P_ij*Phi_i*Phi_j
         hf_forces_mo[i]=F_en+F_nn[i]
@@ -151,10 +152,11 @@ if __name__ == '__main__':
 =====Example 1:=====
   '''
 
-  molstr = '''H  -0.37 0. 0. ; H  0.37 0. 0. '''
+  molstr = '''H  -0.37 0. 0. \n H  0.37 0. 0. '''
   #molstr = '''O  -0.37 0. 0. ; O  0.37 0. 0. '''
 
-  hf_dict=get_hf(molstr)
+  hf_dict=get_hf(molstr,fitness = 'repulsion',basis='sto3g',auxbasis='weigend',ref=True)
+
 
   print hf_dict.keys(),'\n'
 

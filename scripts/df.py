@@ -1,4 +1,3 @@
-#!/home/rsarmiento/anaconda2/bin/python
 
 
 import sys,os
@@ -23,8 +22,8 @@ molstr=xyz.get_block(sys.argv[1])[2:]
 
 # Main Molecule object (M1).
 mol = gto.Mole()
-mol.atom =molstr
-mol.basis = 'cc-pv5z'
+mol.atom = molstr
+mol.basis = 'sto3g'
 mol.build()
 
 # Creating auxiliary Molecule object for the fitting (M2).
@@ -76,22 +75,21 @@ def get_vhf(mol, dm, *args, **kwargs):
         #print >>den_file, " ".join("%16.12f" % x for x in rho[iini:iini+bas_len[i.split()[0]]])
         iini+=bas_len
 
-    rho_normalized=rho * normalization.normalize_df(auxmol)#[0]
-    #print normalization.normalize_df(auxmol)
+    rho_normalized=rho * normalization.normalize_df(auxmol)[0]
 
     # Compute the Hellmann Feynman Forces from the DF expansion.
     print '\nHellmann-Feynman Forces from DF:-----------------------'
+    print '           x                y                z'
     for atom_id in range(mol.natm):
         print atom_id,mol.atom_symbol(atom_id),
         for axis in [0,1,2]:
-            hf=fdf.HellmannFeynman_df(auxmol,atom_id,axis) #*np.sqrt(np.pi*4) # Accounts for the difference
-            norm_aux=fdf.OneGaussian_from_Overlap(auxmol)  #*np.sqrt(np.pi*4) # in normalization
+            norm_aux=fdf.OneGaussian_from_Overlap(auxmol)  #*np.sqrt(np.pi*4)
+            hf=fdf.HellmannFeynman_df(auxmol,atom_id,axis) #*np.sqrt(np.pi*4)
             Coul=grad.grad_nuc(mol)[atom_id][axis]
 
             print '%16.9f' % (hf.dot(rho_normalized)+Coul),
         print ''
     print '-------------------------------------------------------'
-
 
     print   '\nNorm = %12.6f' % (norm_aux.dot(rho_normalized))
 
@@ -155,7 +153,7 @@ print '\n        Mol_file      E_fit[eV]    E_ref[eV]     dE[eV]'
 print ' %15s '   % (sys.argv[1]),' ',
 print ' %10.4f ' % (e_fit*27.2114),
 print ' %10.4f ' % (e_ref*27.2114),
-print ' % 8.4f ' % ((e_fit-e_ref)*27.2114)
+print ' % 8.4f HOC' % ((e_fit-e_ref)*27.2114)
 
 
 

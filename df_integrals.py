@@ -4,7 +4,7 @@ import numpy as np
 from pyscf import gto
 
 
-def OneGaussian_from_Overlap(mol):
+def integral_one_gaussian_from_overlap(mol):
   """
   Outputs the integral of only one Gaussian
   using as second Gaussian in <i|j> an 1s
@@ -31,20 +31,14 @@ def OneGaussian_from_Overlap(mol):
 
 
 
-def HellmannFeynman(mol,ia):
-  """Computes <|\nabla r^{-1}|> for a given atom index ia
-  in the molecule mol.
+
+
+
+
+
+def hellmann_feynman_df(mol,ia,axis):
   """
-  mol.set_rinv_origin_(mol.atom_coord(ia))
-  return -mol.atom_charge(ia) * mol.intor('cint1e_drinv_sph', comp=3)
-
-
-
-
-
-def HellmannFeynman_df(mol,ia,axis):
-  """
-  Outputs the integral 
+  Outputs the integral
         Z_I*<i|(r-R_I)/|r-R_I|^3|j>
   of only one Gaussian using as second Gaussian
   an 1s basis funtion of an He atom with
@@ -89,7 +83,7 @@ if __name__ == '__main__':
   mol.build();
 
   print '\n=====Example 1:====='
-  print HellmannFeynman_df(mol,1,0)
+  print hellmann_feynman_df(mol,1,0)
 
   print '''
 =====Example 2:=====
@@ -116,7 +110,7 @@ if __name__ == '__main__':
   N3=gto.gto_norm(0,0.16885540)
   M3=gto.gto_norm(0,0.16885540/2)
   print 'From the Norms M,N:',0.15432897*N1/M1/M1+0.53532814*N2/M2/M2+0.44463454*N3/M3/M3
-  print 'From the integrals:',OneGaussian_from_Overlap(mol)[0]
+  print 'From the integrals:',integral_one_gaussian_from_overlap(mol)[0]
   print ''
 
   print '''
@@ -137,82 +131,5 @@ if __name__ == '__main__':
   hf_int=gto.moleintor.getints('cint1e_drinv_sph', atm_x, bas_x, env_x,
                                                         comp=3, hermi=0,
                                                         aosym='s1', out=None)[0]
-#  print 'Raw:\n ', hf_int[1:,1:]
-#  print 'Normalized:\n', hf_int/gto.gto_norm(0,1e-15)
-
-
-  print '''
-=====Example 4:=====
-  '''
-
-  import hf_poisson as poi
-
-  mol4 = gto.Mole()
-  mol4.atom = '''H  -0.37 0. 0.; H 0.37 0. 0.'''
-  mol4.basis = 'xxx'
-  mol4.build();
-
-  print HellmannFeynman_df(mol4,1,0)*3.5447
-
-
-  F11=poi.force_en_1Gz(2.02525091,mol.atom_coord(0),
-                             mol.atom_coord(1),1)*1.000000
-  F2=poi.force_nn_1Gz(mol.atom_coord(0),
-                  mol.atom_coord(1),1)
-  F1=F11
-  F_Total=F1+F2
-
-  print '\nF_EN  = %12.6f' % (F1)
-  print   'F_NN  = %12.6f' % (F2)
-  print   'F_Tot = %12.6f' % (F_Total)
-  print   'Norm  = %12.6f' % (np.power(np.pi/2.0252509,3/2.)*0.3570601)
-  print   'Norm  = %12.6f' % (gto.gto_norm(0,2.0252509)*0.3570601)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  print 'Raw:\n ', hf_int[1:,1:]
+  print 'Normalized:\n', hf_int/gto.gto_norm(0,1e-15)
