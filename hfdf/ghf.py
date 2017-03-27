@@ -83,8 +83,8 @@ def get_hf(molstr,fitness = 'repulsion',basis='sto3g',auxbasis='weigend',ref=Tru
         # There is something I don't remember now with the normalization
         # of AO in PySCF. It seems it is only needed to multiply all the
         # DF coefficients by np.sqrt(4*np.pi):
-        rho_normalized = rho * np.sqrt(4*np.pi) #normalization.normalize_df(auxmol)[0]
-        #rho_normalized =  rho * normalization.normalize_df(auxmol)[0]
+        rho_normalized = rho * np.sqrt(4*np.pi)
+        #rho_normalized =  rho * normalization.normalize_df(auxmol)#[0]
 
 
 
@@ -110,7 +110,7 @@ def get_hf(molstr,fitness = 'repulsion',basis='sto3g',auxbasis='weigend',ref=Tru
     if ref==True:
       # Compute the reference Hartree-Fock forces
       g = grad.rhf.Gradients(mf)
-      hf_forces_ref=g.grad()
+      hf_forces_ref=g.grad() # This contains already the Coulomb part.
 
       # Hellmann-Feynman Forces from the MO
       hf_forces_mo=np.ones([mol.natm,3])
@@ -121,10 +121,11 @@ def get_hf(molstr,fitness = 'repulsion',basis='sto3g',auxbasis='weigend',ref=Tru
         F_nn=grad.grad_nuc(mol)
         F_en=np.einsum('ij,kji->k',P,F_en_0)*2. # 2*\Sum P_ij*Phi_i*Phi_j
         hf_forces_mo[i]=F_en+F_nn[i]
+
+      #hf_forces_mo = hf_forces_mo - grad.grad_nuc(mol)
     else:
       hf_forces_ref = None
       hf_forces_mo  = None
-
 
     mf.get_veff = get_vhf  # This substitutes the function 'get_veff' in mf by the
     # implementation of density fitting 'get_vhf' which prints the d_l coefficients.
@@ -134,9 +135,9 @@ def get_hf(molstr,fitness = 'repulsion',basis='sto3g',auxbasis='weigend',ref=Tru
     # Here the function 'get_vhf' is called and give access to the coefficients
     # prints the d_l coefficients.
 
-    return {'hf_df'  : hf_forces_df,
-            'hf_mo'  : hf_forces_mo,
-            'hf_ref' : hf_forces_ref,
+    return {'hf_df'  : hf_forces_df *27.2114/0.529177,
+            'hf_mo'  : hf_forces_mo *27.2114/0.529177,
+            'hf_ref' : hf_forces_ref*27.2114/0.529177,
             'nelect' : number_of_electrons[0],
             'e_fit'  : e_fit*27.2114,
             'e_ref'  : e_ref*27.2114
