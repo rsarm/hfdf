@@ -31,7 +31,7 @@ This is done as follows:
   '("cint2e_ip1_sph"          spheric  (nabla \, \| \,))
 )
 ```
-   so now it reads as
+   so now it reads 
 ```python
 (gen-cint "grad1.c"
   '("cint1e_ipovlp_sph"       spheric  (nabla \|))
