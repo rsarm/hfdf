@@ -2,7 +2,7 @@
 
 from setuptools import setup, find_packages
 import os
-import multiprocessing, logging  # AJ: for some reason this is needed to not have "python setup.py test" freak out
+import multiprocessing, logging
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -24,15 +24,6 @@ if __name__ == "__main__":
         install_requires=[],
         #extras_require={'plotting':['matplotlib>=1.1.1'},
         extras_require={},
-        classifiers=['Programming Language :: Python :: 2.7',
-                     'Development Status :: 4 - Beta',
-                     'Intended Audience :: Science/Research',
-                     'Intended Audience :: Information Technology',
-                     'Operating System :: OS Independent',
-                     'Topic :: Other/Nonlisted Topic',
-                     'Topic :: Scientific/Engineering'],
-        test_suite='nose.collector',
-        tests_require=['nose'],
         scripts=[]
         #scripts=[os.path.join('scripts', f) for f in os.listdir(os.path.join(module_dir, 'scripts'))]
     )
