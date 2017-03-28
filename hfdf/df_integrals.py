@@ -36,7 +36,7 @@ def integral_one_gaussian_from_overlap(mol):
 
 
 
-def hellmann_feynman_df(mol,ia,axis):
+def hellmann_feynman_df(mol,ia):
   """
   Outputs the integral
         Z_I*<i|(r-R_I)/|r-R_I|^3|j>
@@ -63,8 +63,13 @@ def hellmann_feynman_df(mol,ia,axis):
                                                        comp=3, hermi=0,
                                                        aosym='s1', out=None)
 
+  # Term by term, and add 'axis' to the arguments:
+  # def hellmann_feynman_df(mol,ia,axis)
+  #
+  #return -mol.atom_charge(ia)*\
+  #        np.hstack(HF_partial[axis,:,:1])[1:]/gto.gto_norm(0,1e-15)
   return -mol.atom_charge(ia)*\
-          np.hstack(HF_partial[axis,:,:1])[1:]/gto.gto_norm(0,1e-15)
+          np.hstack(HF_partial[:,:,:1])[1:]/gto.gto_norm(0,1e-15)
 
 
 
