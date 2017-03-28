@@ -27,8 +27,10 @@ def _get_all(mol,auxmol,fitness, dm):
 
 
     # Selecting the correspondent integral to minimize.
-    if fitness=='density'  : IklM='cint3c1e_sph'; Ikl='cint1e_ovlp_sph'
-    if fitness=='repulsion': IklM='cint3c2e_sph'; Ikl='cint2c2e_sph'
+    if fitness=='den' or fitness=='density'  :
+        IklM='cint3c1e_sph'; Ikl='cint1e_ovlp_sph'
+    if fitness=='rep' or fitness=='repulsion':
+        IklM='cint3c2e_sph'; Ikl='cint2c2e_sph'
 
     # Computing the necessary integrals.
     eri2c=eri.calc_eri2c(mol,auxmol,Ikl )
@@ -104,6 +106,105 @@ def _get_number_of_electrons(auxmol,rho_normalized):
 
 
 
+def _write_df_coefficients(auxmol,rho_normalized):
+    """Save a file in xyz format with the DF coefficients."""
+
+    norm_aux=df_integrals.integral_one_gaussian_from_overlap(auxmol)
+
+    denstr=str(len(auxmol.atom))+'\nMol 0.0 0.0\n'
+
+    iini = 0
+    for a in auxmol.atom:
+        bas_len=sum(normalization.df_basis_dict[auxmol.basis][a[0]])
+
+        denstr+=str(a[0])+" ".join("%16.12f" % x for x in a[1])
+        denstr+=" ".join("%16.12f" % x for x in rho_normalized[iini:iini+bas_len])+'\n'
+        iini+=bas_len
+
+    return denstr
+
+
+
+
+
+def _save_df_coefficients(auxmol,rho_normalized,file_name):
+    """Save a file in xyz format with the DF coefficients."""
+
+    norm_aux=df_integrals.integral_one_gaussian_from_overlap(auxmol)
+
+    den_file=open(file_name,'w')
+
+    print >>den_file, len(auxmol.atom)
+    print >>den_file, 'Mol 0.0 0.0'
+
+    iini = 0
+    for a in auxmol.atom:
+        bas_len=sum(normalization.df_basis_dict[auxmol.basis][a[0]])
+
+        print >>den_file, a[0]," ".join("%16.12f" % x for x in a[1]),'  ',
+        print >>den_file, " ".join("%16.12f" % x for x in rho_normalized[iini:iini+bas_len])
+        iini+=bas_len
+
+    den_file.close()
+
+
+
+
+def write_dfc(molstr,fitness = 'repulsion',basis='sto3g',auxbasis='weigend'):
+    """Save a file in xyz format with the DF coefficients.
+
+    Returns a dictionary with the energies and number of electrons.
+
+    Arguments:
+
+    molstr   :: expecting something like '''H  -0.37 0. 0. ; H  0.37 0. 0. '''
+
+    fitness  :: Integral to minimize to find the DF coefficients.
+                Can be 'repulsion' or 'density'.
+
+    basis    :: Regular basis.
+
+    auxbasis :: Auxiliary basis set to fit the density.
+
+    """
+
+    mol    = _build_mole(molstr,basis)    # Main Molecule object.
+    auxmol = _build_mole(molstr,auxbasis) # Auxiliary Molecule for the DF.
+
+    number_of_electrons = [1.]  # Lists to have a mutable object.
+    denstr=['xxx']
+
+    def get_vhf(mol, dm, *args, **kwargs):
+        """This function needs to be defined here as it depends on eri2c and eri3c,
+        which are computed above.
+        """
+
+        jmat, kmat, rho_normalized = _get_all(mol,auxmol,fitness, dm)
+
+        denstr[0]=_write_df_coefficients(auxmol, rho_normalized)
+
+        number_of_electrons[0]= _get_number_of_electrons(auxmol,rho_normalized)
+
+        return jmat - kmat * .5
+
+
+    mf = scf.RHF(mol)
+    mf.verbose = 0
+    e_ref=mf.kernel() # Solving the scf RHF.
+
+    mf.get_veff = get_vhf  # This substitutes the function 'get_veff' in mf by the
+    # implementation of the density fitting 'get_vhf'.
+    # This is done here after the SCF was solved.
+
+    e_fit=mf.energy_tot()  # Here the function 'get_vhf' is called and give access
+    # to the coefficients prints the d_l coefficients.
+
+    return {'nelect' : number_of_electrons[0],
+            'e_fit'  : e_fit*27.2114,
+            'e_ref'  : e_ref*27.2114,
+            'dfc_str': denstr[0]
+           }
+
 
 
 
@@ -129,6 +230,9 @@ def get_hf(molstr,fitness = 'repulsion',basis='sto3g',auxbasis='weigend',ref=Tru
 
     ref      :: Selects wheather or not the reference forces are
                 computed for comparison.
+
+    save_den :: Selects wheather or not the DF coeffs are saved to file.
+
     """
 
     # Main Molecule object (M1).
