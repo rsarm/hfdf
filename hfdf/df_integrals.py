@@ -63,11 +63,6 @@ def hellmann_feynman_df(mol,ia):
                                                        comp=3, hermi=0,
                                                        aosym='s1', out=None)
 
-  # Term by term, and add 'axis' to the arguments:
-  # def hellmann_feynman_df(mol,ia,axis)
-  #
-  #return -mol.atom_charge(ia)*\
-  #        np.hstack(HF_partial[axis,:,:1])[1:]/gto.gto_norm(0,1e-15)
   return -mol.atom_charge(ia)*\
           np.hstack(HF_partial[:,:,:1])[1:]/gto.gto_norm(0,1e-15)
 
@@ -88,7 +83,11 @@ if __name__ == '__main__':
   mol.build();
 
   print '\n=====Example 1:====='
-  print hellmann_feynman_df(mol,1,0)
+
+  # This gives the forces of each term of the basis in which then
+  # the density i expanded and then it has top be multiplied by
+  # the density expansion coefficients
+  print hellmann_feynman_df(mol,0)
 
   print '''
 =====Example 2:=====
