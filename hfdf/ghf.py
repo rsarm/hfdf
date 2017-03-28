@@ -74,7 +74,7 @@ def _get_hellmann_feynman_df(rho_normalized,mol,auxmol):
 
         _hf_forces_df[atom_id]=np.dot(rho_normalized,hf)+coul
 
-    return _hf_forces_df
+    return -_hf_forces_df
 
 
 
@@ -89,7 +89,7 @@ def _get_hellmann_feynman_mo(mol,density_matrix):
       F_en=np.einsum('ij,kji->k',density_matrix,F_en_0)*2. # 2*\Sum P_ij*Phi_i*Phi_j
       _hf_forces_mo[i]=F_en+F_nn[i]
 
-    return _hf_forces_mo
+    return -_hf_forces_mo
 
 
 
@@ -171,7 +171,7 @@ def get_hf(molstr,fitness = 'repulsion',basis='sto3g',auxbasis='weigend',ref=Tru
     if ref==True:
         # Compute the reference Hartree-Fock forces
         g = grad.rhf.Gradients(mf)
-        hf_forces_ref=g.grad() # Contains already the Coulomb part.
+        hf_forces_ref=-g.grad() # Contains already the Coulomb part.
 
         # Hellmann-Feynman Forces from the MO
         hf_forces_mo = _get_hellmann_feynman_mo(mol,mf.from_chk())
