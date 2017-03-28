@@ -96,20 +96,29 @@ def _get_hellmann_feynman_mo(mol,density_matrix):
 
 
 
+def _get_dip_moment(rho_normalized,auxmol):
+    """Returns the number of electrons."""
+
+    integral_of_ao=df_integrals.integral_one_gaussian_polarization(auxmol)
+
+    return np.dot(rho_normalized, integral_of_ao)
+
+
+
+
+
 def _get_number_of_electrons(auxmol,rho_normalized):
     """Returns the number of electrons."""
 
-    norm_aux=df_integrals.integral_one_gaussian_from_overlap(auxmol)
+    integral_of_ao=df_integrals.integral_one_gaussian_from_overlap(auxmol)
 
-    return norm_aux.dot(rho_normalized)
+    return integral_of_ao.dot(rho_normalized)
 
 
 
 
 def _write_df_coefficients(auxmol,rho_normalized):
     """Save a file in xyz format with the DF coefficients."""
-
-    norm_aux=df_integrals.integral_one_gaussian_from_overlap(auxmol)
 
     denstr=str(len(auxmol.atom))+'\nMol 0.0 0.0\n'
 
@@ -129,8 +138,6 @@ def _write_df_coefficients(auxmol,rho_normalized):
 
 def _save_df_coefficients(auxmol,rho_normalized,file_name):
     """Save a file in xyz format with the DF coefficients."""
-
-    norm_aux=df_integrals.integral_one_gaussian_from_overlap(auxmol)
 
     den_file=open(file_name,'w')
 
@@ -184,6 +191,8 @@ def write_dfc(molstr,fitness = 'repulsion',basis='sto3g',auxbasis='weigend'):
         denstr[0]=_write_df_coefficients(auxmol, rho_normalized)
 
         number_of_electrons[0]= _get_number_of_electrons(auxmol,rho_normalized)
+
+        print _get_dip_moment(rho_normalized,auxmol)
 
         return jmat - kmat * .5
 
