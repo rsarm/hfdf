@@ -196,6 +196,7 @@ def write_dfc(molstr,fitness = 'repulsion',basis='sto3g',auxbasis='weigend'):
 
     number_of_electrons = [1.]  # Lists to have a mutable object.
     denstr=['xxx']
+    dip_mom = [1.]
 
     def get_vhf(mol, dm, *args, **kwargs):
         """This function needs to be defined here as it depends on eri2c and eri3c,
@@ -204,11 +205,11 @@ def write_dfc(molstr,fitness = 'repulsion',basis='sto3g',auxbasis='weigend'):
 
         jmat, kmat, rho_normalized = _get_all(mol,auxmol,fitness, dm)
 
-        denstr[0]=_write_df_coefficients(auxmol, rho_normalized)
+        denstr[0] =_write_df_coefficients(auxmol, rho_normalized)
 
-        number_of_electrons[0]= _get_number_of_electrons(auxmol,rho_normalized)
+        number_of_electrons[0] = _get_number_of_electrons(auxmol,rho_normalized)
 
-        print _get_dip_moment(rho_normalized,auxmol)
+        dip_mom[0] = _get_dip_moment(rho_normalized,auxmol)
 
         return jmat - kmat * .5
 
@@ -227,7 +228,8 @@ def write_dfc(molstr,fitness = 'repulsion',basis='sto3g',auxbasis='weigend'):
     return {'nelect' : number_of_electrons[0],
             'e_fit'  : e_fit*27.2114,
             'e_ref'  : e_ref*27.2114,
-            'dfc_str': denstr[0]
+            'dfc_str': denstr[0],
+            'dip_mom': dip_mom[0]
            }
 
 
