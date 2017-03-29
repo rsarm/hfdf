@@ -50,7 +50,7 @@ def integral_one_gaussian_polarization(mol):
                                         mol._atm,    mol._bas,    mol._env)
   # Computing the overlap
   PTR_COMMON_ORIG   = 1
-  env_x[PTR_COMMON_ORIG:PTR_COMMON_ORIG+3] = (mol.atom_coord(1)-mol.atom_coord(0))/2.
+  env_x[PTR_COMMON_ORIG:PTR_COMMON_ORIG+3] = (0.,0.,0.)#(mol.atom_coord(1)-mol.atom_coord(0))/2.
   #mol.set_common_orig((1.,0.,0.))
   HF_partial=gto.moleintor.getints('cint1e_r_sph', atm_x, bas_x, env_x,
                                                       comp=3, hermi=0,

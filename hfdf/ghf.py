@@ -101,7 +101,14 @@ def _get_dip_moment(rho_normalized,auxmol):
 
     integral_of_ao=df_integrals.integral_one_gaussian_polarization(auxmol)
 
-    return np.dot(rho_normalized, integral_of_ao)
+    el_dip  = np.dot(rho_normalized, integral_of_ao)
+
+    charges = auxmol.atom_charges()
+    coords  = auxmol.atom_coords()
+
+    nucl_dip = np.einsum('i,ix->x', charges, coords)
+
+    return nucl_dip - el_dip
 
 
 
