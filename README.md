@@ -48,6 +48,25 @@ This is done as follows:
    mv *.c ../src/autocode/
 
 * Now go back to pyscf/lib/build and run 'make' this time
-   until it finishes. That's it!
+   until it finishes. That's almost it!
 
-* Finaly add the full pyscf directory to the PATH
+* To compute some integrals, it is necessary to use a trick which involves
+  a dummy atom of He. For that, one needs to add a new basis set file to
+  pyscf/gto/basis/. I call it 'xxx.dat' and reads (first line is empty):
+```python
+BASIS "ao basis" PRINT
+#BASIS SET: (5s,2p,1d) -> [3s,1p,1d]
+H    S
+      2.02525091                 1.0000000
+#BASIS SET: (5s,2p,1d) -> [3s,1p,1d]
+He    S
+      0.000000000000001          1.0000000
+```
+  now add the line
+  
+```python
+    'xxx'        : 'xxx.dat'        ,
+```
+  to the dictionay 'ALIAS' in pyscf/gto/basis/__init__.py
+
+* Finaly add the full pyscf directory to the PYTHONPATH
