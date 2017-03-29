@@ -25,7 +25,6 @@ def _get_all(mol,auxmol,fitness, dm):
     rho_normalized =  rho * normalization.normalize_df(auxmol)#[0]
     """
 
-
     # Selecting the correspondent integral to minimize.
     if fitness=='den' or fitness=='density'  :
         IklM='cint3c1e_sph'; Ikl='cint1e_ovlp_sph'
@@ -36,11 +35,13 @@ def _get_all(mol,auxmol,fitness, dm):
     eri2c=eri.calc_eri2c(mol,auxmol,Ikl )
     eri3c=eri.calc_eri3c(mol,auxmol,IklM)
 
+    # Solving the system of equations obtained from the minimization.
     naux = eri2c.shape[0]
     nao  = mol.nao_nr()
     rho  = np.einsum('ijp,ij->p', eri3c, dm);
     rho  = np.linalg.solve(eri2c, rho)
 
+    # Getting the relevant matrices to compute the energy with the DF.
     jmat = np.einsum('p,ijp->ij', rho, eri3c)
     kpj  = np.einsum('ijp,jk->ikp', eri3c, dm)
     pik  = np.linalg.solve(eri2c, kpj.reshape(-1,naux).T)
@@ -82,7 +83,8 @@ def _get_hellmann_feynman_df(rho_normalized,mol,auxmol):
 
 
 def _get_hellmann_feynman_mo(mol,density_matrix):
-    # Hellmann-Feynman Forces from the MO
+    """Hellmann-Feynman Forces from the MO."""
+
     _hf_forces_mo=np.ones([mol.natm,3])
 
     for i in range(mol.natm):
@@ -97,7 +99,11 @@ def _get_hellmann_feynman_mo(mol,density_matrix):
 
 
 def _get_dip_moment(rho_normalized,auxmol):
-    """Returns the number of electrons."""
+    """Returns dipole moment computed from the DF expansion.
+
+    It is done following the function 'dip_moment' writen
+    in 'pyscf/scf/hf.py'.
+    """
 
     integral_of_ao=df_integrals.integral_one_gaussian_polarization(auxmol)
 
@@ -113,9 +119,9 @@ def _get_dip_moment(rho_normalized,auxmol):
 
 
 
-
 def _get_number_of_electrons(auxmol,rho_normalized):
-    """Returns the number of electrons."""
+    """Returns the number of electrons computed from the DF expansion.
+    """
 
     integral_of_ao=df_integrals.integral_one_gaussian_from_overlap(auxmol)
 
@@ -125,7 +131,8 @@ def _get_number_of_electrons(auxmol,rho_normalized):
 
 
 def _write_df_coefficients(auxmol,rho_normalized):
-    """Save a file in xyz format with the DF coefficients."""
+    """Return a string with the DF coefficients in xyz format.
+    """
 
     denstr=str(len(auxmol.atom))+'\nMol 0.0 0.0\n'
 
@@ -138,7 +145,6 @@ def _write_df_coefficients(auxmol,rho_normalized):
         iini+=bas_len
 
     return denstr
-
 
 
 
@@ -160,6 +166,9 @@ def _save_df_coefficients(auxmol,rho_normalized,file_name):
         iini+=bas_len
 
     den_file.close()
+
+
+
 
 
 

@@ -33,11 +33,10 @@ def integral_one_gaussian_from_overlap(mol):
 
 def integral_one_gaussian_polarization(mol):
   """
-  Outputs the integral of only one Gaussian
-  using as second Gaussian in <i|r|j> an 1s
-  basis funtion of an He atom with
-  alpha=1e-15 and coeff=1.00000. The result
-  is divided by the norm of the He function.
+  Outputs the integral <i|r|j> with the only-one-Gaussian trick
+  using as second Gaussian an 1s basis funtion of an He atom with
+  alpha=1e-15 and coeff=1.00000. The result is divided by the
+  norm of the 'dummy' He function.
   """
   # Creating auxiliar Molecule
   intmol=gto.Mole()
