@@ -65,7 +65,7 @@ class density_fitting(object):
     def get_hf_forces(self):
         """Hellmann-Feynman Forces from the DF expansion."""
 
-        self.hf_forces = _get_hellmann_feynman_df(self.den,self._auxmol)
+        self.hf_forces = _get_hellmann_feynman_df(self.den,self._auxmol)  * 27.2114/0.529177
 
         return self.hf_forces
 
@@ -75,7 +75,7 @@ class density_fitting(object):
     def get_hf_forces_mo(self):
         """Hellmann-Feynman Forces from the MO."""
 
-        self.hf_forces_mo = _get_hellmann_feynman_mo(self._mol,self._dm)
+        self.hf_forces_mo = _get_hellmann_feynman_mo(self._mol,self._dm)  * 27.2114/0.529177
 
         return self.hf_forces_mo
 
@@ -92,7 +92,7 @@ class density_fitting(object):
         # Compute the reference Hartree-Fock forces
         g = grad.rhf.Gradients(mf)
 
-        self.forces_ref = -g.grad() # Contains already the Coulomb part.
+        self.forces_ref = -g.grad()  * 27.2114/0.529177 # Contains already the Coulomb part.
 
         return self.forces_ref
 
@@ -242,7 +242,11 @@ def _write_df_coefficients(auxmol,rho_normalized):
 
 
 def get_df(molstr, fitness, basis, auxbasis):
-    """xxx."""
+    """This is used to initialize the class density_fitting.
+    This function is called in __init__() and performs a DF
+    calculation and returns the DF coefficients, the enrgies
+    and the density matrix.
+    """
 
     mol    = _build_mole(molstr,basis)    # Main Molecule object.
     auxmol = _build_mole(molstr,auxbasis) # Auxiliary Molecule for the DF.
