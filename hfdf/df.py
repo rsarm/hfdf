@@ -271,6 +271,8 @@ def get_df(molstr, fitness, basis, auxbasis):
     mf.verbose = 0
     e_ref=mf.kernel() # Solving the scf RHF.
 
+    if mf.converged==False: print 'Warning: SCF didn\'t converged'
+
     density_matrix[0]=mf.from_chk()
 
     mf.get_veff = get_vhf  # This substitutes the function 'get_veff' in mf by the
