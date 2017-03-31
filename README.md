@@ -1,5 +1,5 @@
 ## HFDF
-### Calculate forces using the Helmann-Feynman theorem using a basis set expansion of the density within PySCF.
+### Calculation of forces using the Helmann-Feynman theorem using a basis set expansion of the density within PySCF.
 
 This does a density fitting with PySCF using the functions given in the
 tutorial page http://sunqm.github.io/pyscf/tutorial.html#access-ao-integrals and
