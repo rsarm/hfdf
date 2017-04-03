@@ -35,7 +35,7 @@ class density_fitting(object):
         self.den      = _df['dfc']
         self.efit     = _df['e_fit']
         self.eref     = _df['e_ref']
-        self.dfstr    = _df['dfc_str']
+        self.dfstr    = _df['dfc_str'][:-1]#Removing the last '\n'
         self._dm      = _df['density_matrix']
 
 
