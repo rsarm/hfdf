@@ -4,6 +4,12 @@ import numpy as np
 from pyscf import gto
 
 
+He_exp_str='0.000000000000001'
+He_exp_flt=float(He_exp_str)
+_he_flat_basis="He    S\n     " + He_exp_str + "           1.0000000\n"
+He_flat_basis={'He':gto.basis.parse(_he_flat_basis)}
+
+
 def integral_one_gaussian_from_overlap(mol):
   """
   Outputs the integral of only one Gaussian
@@ -15,7 +21,7 @@ def integral_one_gaussian_from_overlap(mol):
   # Creating auxiliar Molecule
   intmol=gto.Mole()
   intmol.atom = '''He  0. 0. 0.'''
-  intmol.basis = 'xxx'
+  intmol.basis = He_flat_basis
   intmol.build()
 
   # Merging molecules
@@ -25,7 +31,7 @@ def integral_one_gaussian_from_overlap(mol):
   HF_partial=gto.moleintor.getints('cint1e_ovlp_sph', atm_x, bas_x, env_x,
                                                       comp=1, hermi=0,
                                                       aosym='s1', out=None)
-  return np.hstack(HF_partial[:,:1])[1:]/gto.gto_norm(0,1e-15)
+  return np.hstack(HF_partial[:,:1])[1:]/gto.gto_norm(0,He_exp_flt)
 
 
 
@@ -41,7 +47,7 @@ def integral_one_gaussian_polarization(mol):
   # Creating auxiliar Molecule
   intmol=gto.Mole()
   intmol.atom = '''He  0. 0. 0.'''
-  intmol.basis = 'xxx'
+  intmol.basis = He_flat_basis
   intmol.build()
 
   # Merging molecules
@@ -55,7 +61,7 @@ def integral_one_gaussian_polarization(mol):
                                                       comp=3, hermi=0,
                                                       aosym='s1', out=None)
 
-  return np.hstack(HF_partial[:,:,:1])[1:]/gto.gto_norm(0,1e-15)
+  return np.hstack(HF_partial[:,:,:1])[1:]/gto.gto_norm(0,He_exp_flt)
 
 
 
@@ -74,7 +80,7 @@ def hellmann_feynman_df(mol,ia):
   # Creating auxiliar Molecule
   intmol=gto.Mole()
   intmol.atom = '''He  0. 0. 0.'''
-  intmol.basis = 'xxx'
+  intmol.basis = He_flat_basis
   intmol.build()
 
   # Merging molecules
@@ -89,7 +95,7 @@ def hellmann_feynman_df(mol,ia):
                                                        aosym='s1', out=None)
 
   return -mol.atom_charge(ia)*\
-          np.hstack(HF_partial[:,:,:1])[1:]/gto.gto_norm(0,1e-15)
+          np.hstack(HF_partial[:,:,:1])[1:]/gto.gto_norm(0,He_exp_flt)
 
 
 
@@ -149,7 +155,7 @@ if __name__ == '__main__':
   # Creating auxiliar Molecule
   intmol=gto.Mole()
   intmol.atom = '''He  0. 0. 0.'''
-  intmol.basis = 'xxx'
+  intmol.basis = He_flat_basis
   intmol.build()
 
   # Merging molecules
@@ -161,4 +167,4 @@ if __name__ == '__main__':
                                                         comp=3, hermi=0,
                                                         aosym='s1', out=None)[0]
   print 'Raw:\n ', hf_int[1:,1:]
-  print 'Normalized:\n', hf_int/gto.gto_norm(0,1e-15)
+  print 'Normalized:\n', hf_int/gto.gto_norm(0,He_exp_flt)
