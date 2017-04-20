@@ -233,7 +233,7 @@ def _write_df_coefficients(auxmol,rho_normalized):
         for a in auxmol.atom:
             bas_len=sum(normalization.df_basis_dict[auxmol.basis][a[0]])
 
-            denstr+=str(a[0])+" ".join("%16.12f" % x for x in a[1])
+            denstr+="{:<4}".format(str(a[0]))+" ".join("%16.12f" % x for x in a[1])
             denstr+=" ".join("%16.12f" % x for x in rho_normalized[iini:iini+bas_len])+'\n'
             iini+=bas_len
 
