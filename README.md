@@ -1,9 +1,9 @@
 ## HFDF
-### Calculation of forces applying the Helmann-Feynman theorem using a basis set expansion of the density within PySCF.
+### Calculation of atomic forces by applying the Helmann-Feynman theorem to a basis set expansion of the density.
 
 This does a density fitting with PySCF using the functions given in the
-tutorial page http://sunqm.github.io/pyscf/tutorial.html#access-ao-integrals and
-with the fitted density computes forces using the Hellmann-Feynmann theorem.
+tutorial page http://sunqm.github.io/pyscf/tutorial.html#access-ao-integrals.
+With the fitted density the forces are computed using the Hellmann-Feynmann theorem.
 
 ### Compiling PySCF and adding the 'cint1e_drinv_sph' integral.
 
@@ -17,6 +17,7 @@ This is done as follows:
 * cd pyscf/lib/; mkdir build; cd build; cmake ..;
 
 * Now this part is nasty: Run 'make' and stop it (crtl+c) after libcint was cloned.
+  (Maybe libcint can be cloned beforehand and this can be avoided, but I didn't try.)
 
 * cd deps/src/libcint/scripts/    # This is inside pyscf/lib/build
 
@@ -51,8 +52,9 @@ This is done as follows:
    until it finishes. That's almost it!
 
 * To compute some integrals, it is necessary to use a trick which involves
-  a dummy atom of He. For that, one needs to add a new basis set file to
-  pyscf/gto/basis/. I call it 'xxx.dat' and reads (first line is empty):
+  a dummy atom of He. There is no need to add the new basis set file to
+  pyscf/gto/basis/. It was added as a string basis set in hfdf/df_integrals.py.
+  That basis reads (first line is empty):
 ```python
 BASIS "ao basis" PRINT
 #BASIS SET: (5s,2p,1d) -> [3s,1p,1d]
@@ -62,11 +64,4 @@ H    S
 He    S
       0.000000000000001          1.0000000
 ```
-  now add the line
-  
-```python
-    'xxx'        : 'xxx.dat'        ,
-```
-  to the dictionay 'ALIAS' in pyscf/gto/basis/__init__.py
-
 * Finaly add the full pyscf directory to the PYTHONPATH
