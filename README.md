@@ -64,4 +64,4 @@ H    S
 He    S
       0.000000000000001          1.0000000
 ```
-* Finaly add the full pyscf directory to the PYTHONPATH
+* Finally add the full pyscf directory to the PYTHONPATH
