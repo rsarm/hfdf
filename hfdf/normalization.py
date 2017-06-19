@@ -5,10 +5,12 @@ from pyscf import gto
 
 # Basis sets that to fit the density.
 df_basis_dict={
-  'sto-3g' :{'H':[ 1,  0],
-             'C':[ 2,  3],
-             'N':[ 2,  3],
-             'O':[ 2,  3]
+  'sto-3g' :{'H' :[ 1,  0],
+             'He':[ 1,  0],
+             'B' :[ 2,  3],
+             'C' :[ 2,  3],
+             'N' :[ 2,  3],
+             'O' :[ 2,  3]
             },
   'weigend':{'H':[ 3,  3,  5,  0,  0],
              'C':[ 6, 12, 15,  7,  9],
